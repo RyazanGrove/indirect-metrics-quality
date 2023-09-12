@@ -10,7 +10,7 @@ def get_defect_dict():
     print("Calculating total number of bugs with weight for every week")
 
     #read
-    bugs_sheet = pd.read_excel('data\\Masters thesis draft 1.4.xlsx', sheet_name='Bugs sorted', index_col=0)
+    bugs_sheet = pd.read_excel('..\\data\\Masters thesis draft 1.4.xlsx', sheet_name='Bugs sorted', index_col=0)
     #remove rows not related to defects
     real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()]
     #remove rows with unclear danger
