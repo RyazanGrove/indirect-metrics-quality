@@ -29,3 +29,8 @@ for index, row in source_code_data.iterrows():
 
 for column in columns_to_analyze:
     print('{0} correlation = {1}'.format(column, source_code_data[column].corr(source_code_data["Danger"])))
+
+columns_to_analyze.append("Danger")
+service_to_print = source_code_data[columns_to_analyze]
+
+service_to_print.to_excel('..\\output\\source_code_for_ml.xlsx')
