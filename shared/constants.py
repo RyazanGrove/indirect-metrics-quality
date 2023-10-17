@@ -23,3 +23,6 @@ operational_metrics_per_service = {
     "S10": [operational_metrics_names[i] for i in [0,1,4,5,6,8]],
     "S11": [operational_metrics_names[i] for i in [3,4,5,6]]
 }
+
+verification_start_date = '2023-09-13'
+verification_end_date = '2023-09-27'
