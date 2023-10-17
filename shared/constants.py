@@ -26,5 +26,13 @@ services_metadata = {
         { "service": "S9", "sheet_name": "9 rt-bdd-ui-test-lib", "metrics": [operational_metrics_names[i] for i in [0,1,4,5,6,8]]},
         { "service": "S10", "sheet_name": "10 rt-bdd-api-test-lib", "metrics": [operational_metrics_names[i] for i in [0,1,4,5,6,8]]},
         { "service": "S11", "sheet_name": "11 rt-orchestrator-e2e-testing", "metrics": [operational_metrics_names[i] for i in [3,4,5,6]]},
+    ],
+    "source_code": [
+        { "service": "S1", "sheet_name": "12 rt-orchestration-service_sou"},
+        { "service": "S3", "sheet_name": "13 rt-auth-service_source_code"},
+        { "service": "S4", "sheet_name": "14 rt-dicom-comm-service_source"},
+        { "service": "S5", "sheet_name": "15 rt-image2plan-config_source"},
+        { "service": "S6", "sheet_name": "16 rt-image2plan-infra-ser_sour"},
+        { "service": "S8", "sheet_name": "17 rt-remote-desktop-service_so"},
     ]
 }
