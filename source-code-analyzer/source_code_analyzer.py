@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from shared.defects_calculator import get_defect_dict
 from shared.constants import verification_start_date, services_metadata
@@ -12,9 +13,15 @@ columns_to_analyze = [
 ]
 
 defect_dict = get_defect_dict()
+dimensions_array = np.zeros((len(columns_to_analyze),6))
+correlation_pearson_df = pd.DataFrame(dimensions_array)
+correlation_spearman_df = correlation_pearson_df.copy()
+std_df = correlation_pearson_df.copy()
+service_names_list = []
 
-for current_service in services_metadata["source_code"]:
+for index_main, current_service in enumerate(services_metadata["source_code"]):
     service_name = current_service["service"]
+    service_names_list.append(service_name)
     sheet_name = current_service["sheet_name"]
 
     source_code_data = pd.read_excel('..\\data\\Masters thesis final.xlsx', sheet_name=sheet_name)
@@ -40,6 +47,20 @@ for current_service in services_metadata["source_code"]:
     verification_period = source_code_data[ source_code_data['Date'] >=  verification_start_date].index
     source_code_data.drop(verification_period , inplace=True)
 
-    print("Metrics for service : ", service_name)
-    for column in columns_to_analyze:
-        print('{0} correlation = {1}'.format(column, source_code_data[column].corr(source_code_data["Danger"])))
+    print('\nNumber of items in the dataset for service {0}: {1}'.format(service_name, source_code_data.shape[0]))
+    for index, column in enumerate(columns_to_analyze):
+        correlation_pearson_df.iloc[index, index_main] = source_code_data[column].corr(source_code_data["Danger"], method='pearson')
+        correlation_spearman_df.iloc[index, index_main] = source_code_data[column].corr(source_code_data["Danger"], method='spearman')
+        std_df.iloc[index, index_main] = source_code_data[column].std()
+
+correlation_pearson_df.columns = service_names_list
+correlation_spearman_df.columns = service_names_list
+std_df.columns = service_names_list
+
+correlation_pearson_df.to_excel('..\\output\\source_code_corr_pearson.xlsx', float_format="%.3f")
+correlation_spearman_df.to_excel('..\\output\\source_code_corr_spearman.xlsx', float_format="%.3f")
+std_df.to_excel('..\\output\\source_code_std.xlsx', float_format="%.3f")
+
+print("Pearson correlation", correlation_pearson_df)
+print("Spearman correlation", correlation_spearman_df)
+print("Std", std_df)
