@@ -10,6 +10,7 @@ dimensions_array = np.zeros((9,11))
 correlation_pearson_df = pd.DataFrame(dimensions_array)
 correlation_spearman_df = correlation_pearson_df.copy()
 std_df = correlation_pearson_df.copy()
+coefficient_of_variation_df = correlation_pearson_df.copy()
 service_names_list = []
 
 for service_index, current_service in enumerate(services_metadata["operational"]):
@@ -45,15 +46,19 @@ for service_index, current_service in enumerate(services_metadata["operational"]
         correlation_pearson_df.iloc[metric_index, service_index] = operational_metrics_data[column].corr(operational_metrics_data["Danger"], method='pearson')
         correlation_spearman_df.iloc[metric_index, service_index] = operational_metrics_data[column].corr(operational_metrics_data["Danger"], method='spearman')
         std_df.iloc[metric_index, service_index] = operational_metrics_data[column].std()
+        coefficient_of_variation_df.iloc[metric_index, service_index] = operational_metrics_data[column].std() / operational_metrics_data[column].mean()
 
 correlation_pearson_df.columns = service_names_list
 correlation_spearman_df.columns = service_names_list
 std_df.columns = service_names_list
+coefficient_of_variation_df.columns = service_names_list
 
 correlation_pearson_df.to_excel('..\\output\\operational_metrics\\operational_metrics_corr_pearson.xlsx', float_format="%.3f")
 correlation_spearman_df.to_excel('..\\output\\operational_metrics\\operational_metrics_corr_spearman.xlsx', float_format="%.3f")
 std_df.to_excel('..\\output\\operational_metrics\\operational_metrics_std.xlsx', float_format="%.3f")
+coefficient_of_variation_df.to_excel('..\\output\\operational_metrics\\operational_metrics_cv.xlsx', float_format="%.3f")
 
 print("Pearson correlation", correlation_pearson_df)
 print("Spearman correlation", correlation_spearman_df)
 print("Std", std_df)
+print("Coefficient of variation", coefficient_of_variation_df)
