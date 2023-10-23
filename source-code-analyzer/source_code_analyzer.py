@@ -17,37 +17,37 @@ columns_to_analyze = [
 
 service_df = pd.read_excel('..\\output\\source_code\\source_code_for_ml_S1.xlsx')
 
-verification_period_df = service_df[(service_df['Date'] >=  verification_start_date) & (service_df['Date'] <=  verification_end_date)]
-
-before_verification_period = service_df[ service_df['Date'] >=  verification_start_date].index
-service_df.drop(before_verification_period , inplace=True)
-
-
-service_to_analyze = service_df[columns_to_analyze]
-service_to_check = verification_period_df[columns_to_analyze]
-
-X = service_to_analyze.iloc[:, :-1]
-y = service_to_analyze['Danger']
-
-Xv = service_to_check.iloc[:, :-1]
-yv = service_to_check['Danger']
-
+# create scaler
 scaler = StandardScaler()
-scaler.fit(X)
+scaling_data = service_df[columns_to_analyze].iloc[:, :-1]
+scaler.fit(scaling_data)
 
+# verification data preparation
+verification_data_lines = service_df[(service_df['Date'] >=  verification_start_date) & (service_df['Date'] <=  verification_end_date)]
+verification_data_df = verification_data_lines[columns_to_analyze]
+X_ver = verification_data_df.iloc[:, :-1]
+y_ver = verification_data_df['Danger']
+X_ver_scaled = scaler.transform(X_ver.values)
+
+# model data preparation
+data_to_analyze_lines = service_df[ service_df['Date'] >=  verification_start_date].index
+service_df.drop(data_to_analyze_lines, inplace=True)
+data_to_analyze_df = service_df[columns_to_analyze]
+X = data_to_analyze_df.iloc[:, :-1]
+y = data_to_analyze_df['Danger']
 X_scaled = scaler.transform(X.values)
-Xv_scaled = scaler.transform(Xv.values)
 
+# split data to study and test 
 X_train_scaled, X_test_scaled, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=0)
 
+# create model
 logistic_regression = LogisticRegression(max_iter= 300)
-
 logistic_regression.fit(X_train_scaled, y_train)
-
 print('Model accuracy: {}%'.format(round(logistic_regression.score(X_test_scaled, y_test)*100)))
 
-log_reg_preds = logistic_regression.predict(Xv_scaled)
-
-print('Mean Absolute Error:', round(metrics.mean_absolute_error(yv, log_reg_preds), 3)) 
-print('Mean Squared Error:', round(metrics.mean_squared_error(yv, log_reg_preds), 3))  
-print('Root Mean Squared Error:', round(np.sqrt(metrics.mean_squared_error(yv, log_reg_preds)), 3))
+# verify the predicted results
+log_reg_preds = logistic_regression.predict(X_ver_scaled)
+print("log_reg_preds",log_reg_preds)
+print('Mean Absolute Error:', round(metrics.mean_absolute_error(y_ver, log_reg_preds), 3)) 
+print('Mean Squared Error:', round(metrics.mean_squared_error(y_ver, log_reg_preds), 3))  
+print('Root Mean Squared Error:', round(np.sqrt(metrics.mean_squared_error(y_ver, log_reg_preds)), 3))
