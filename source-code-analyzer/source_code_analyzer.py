@@ -60,7 +60,7 @@ for service_index, current_service in enumerate(services_metadata["source_code"]
     # verify the predicted results
     log_reg_preds = logistic_regression.predict(X_ver_scaled)
 
-    accuracy_df.iloc[0, service_index] = logistic_regression.score(X_test_scaled, y_test)*100
+    accuracy_df.iloc[0, service_index] = round(logistic_regression.score(X_test_scaled, y_test)*100)
     accuracy_df.iloc[1, service_index] = metrics.mean_absolute_error(y_ver, log_reg_preds)
     accuracy_df.iloc[2, service_index] = metrics.mean_squared_error(y_ver, log_reg_preds)
     accuracy_df.iloc[3, service_index] = np.sqrt(metrics.mean_squared_error(y_ver, log_reg_preds))
