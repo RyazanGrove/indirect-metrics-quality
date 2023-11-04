@@ -12,6 +12,7 @@ operational_metrics_names = ["Static tests", "Dynamic tests", "Integration tests
 
 verification_start_date = '2023-09-13'
 verification_end_date = '2023-09-27'
+vpr_start_date = '2023-08-10'
 
 services_metadata = {
     "operational": [
