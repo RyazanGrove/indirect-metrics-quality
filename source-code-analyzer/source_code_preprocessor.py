@@ -12,15 +12,6 @@ columns_to_analyze = [
 "Total percentage of comments (raw analysis)", "Average percentage of comments (raw analysis) per file"
 ]
 
-columns_to_analyze_with_danger = [
-"Total Cyclomatic Complexity", "Average Cyclomatic Complexity per file", 
-"Total Maintainability Index", "Average Maintainability Index per file",
-"Total Halstead Volume", "Average Halstead Volume per file",
-"Total Lines of Code (raw analysis)", "Average Lines of Code (raw analysis) per file",
-"Total percentage of comments (raw analysis)", "Average percentage of comments (raw analysis) per file",
-"Danger"
-]
-
 dimensions_array = np.zeros((len(columns_to_analyze),6))
 template_df = pd.DataFrame(dimensions_array)
 
@@ -61,6 +52,9 @@ for service_index, current_service in enumerate(services_metadata["source_code"]
 
     # save the whole data table for review purpose
     source_code_data.to_excel(source_code_metrics_path + 'for_review_' + service_abr + '.xlsx')
+
+    columns_to_analyze_with_danger = columns_to_analyze.copy()
+    columns_to_analyze_with_danger.append("Danger")
 
     # save the data table before validation date
     before_vpr_df = source_code_data.copy()
