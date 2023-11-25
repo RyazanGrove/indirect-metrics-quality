@@ -6,7 +6,7 @@ Conformance - 2 weeks
 
 import pandas as pd
 
-def get_defect_dict():
+def get_defect_dict(day_shift_back = 0):
     print("Calculating total number of bugs with weight for every week")
 
     #read
@@ -18,6 +18,8 @@ def get_defect_dict():
     real_bugs = real_bugs.loc[real_bugs['Danger_lvl'].notnull()]
 
     #create week and year columns
+    real_bugs['Days_shift'] = day_shift_back
+    real_bugs['Found'] = real_bugs['Found'] -  pd.to_timedelta(real_bugs['Days_shift'], unit='d')
     real_bugs["Week"] = real_bugs["Found"].dt.isocalendar().week
     real_bugs["Year"] = real_bugs["Found"].dt.isocalendar().year
 
@@ -41,7 +43,7 @@ def get_defect_dict():
     
     return result
 
-def get_defect_for_sprint():
+def get_defect_for_sprint(day_shift_back = 0):
     print("Calculating total number of bugs with weight for every sprint")
 
     #read
@@ -56,6 +58,8 @@ def get_defect_for_sprint():
     real_bugs = real_bugs.loc[real_bugs['Danger_lvl'].notnull()]
 
     #create week and year columns
+    real_bugs['Days_shift'] = day_shift_back
+    real_bugs['Found'] = real_bugs['Found'] -  pd.to_timedelta(real_bugs['Days_shift'], unit='d')
     real_bugs["Week"] = real_bugs["Found"].dt.isocalendar().week
     real_bugs["Year"] = real_bugs["Found"].dt.isocalendar().year
 
@@ -72,7 +76,7 @@ def get_defect_for_sprint():
 
     return bugs_per_sprint
 
-def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service', include_pipeline_defects = False):
+def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service', include_pipeline_defects = False, day_shift_back = 0):
     print("Calculating total number of bugs with weight for every week per " + service_name + " service")
 
     #read
@@ -88,7 +92,10 @@ def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service', 
             (real_bugs['Related service (at least fix)'].str.contains('all'))]
     else:
         real_bugs = real_bugs.loc[real_bugs['Related service (at least fix)'].str.contains(service_name)]
-
+    
+    #create week and year columns
+    real_bugs['Days_shift'] = day_shift_back
+    real_bugs['Found'] = real_bugs['Found'] -  pd.to_timedelta(real_bugs['Days_shift'], unit='d')
     real_bugs["Week"] = real_bugs["Found"].dt.isocalendar().week
     real_bugs["Year"] = real_bugs["Found"].dt.isocalendar().year
 
