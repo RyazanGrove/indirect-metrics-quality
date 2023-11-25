@@ -37,3 +37,5 @@ services_metadata = {
         { "service": "S8", "sheet_name": "17 rt-remote-desktop-service_so", "service_name": "rt-remote-desktop-service"},
     ]
 }
+
+source_code_metrics_path = "..\\output\\final\\source_code\\"
