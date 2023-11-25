@@ -39,3 +39,4 @@ services_metadata = {
 }
 
 source_code_metrics_path = "..\\output\\final\\source_code\\"
+operational_metrics_path = "..\\output\\final\\operational\\"
