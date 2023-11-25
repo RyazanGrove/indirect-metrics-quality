@@ -1,4 +1,4 @@
-from shared.constants import verification_start_date, services_metadata, operational_metrics_names
+from shared.constants import verification_start_date, vpr_start_date, services_metadata, operational_metrics_names, operational_metrics_path
 from shared.defects_calculator import get_defect_dict, get_defect_dict_per_service
 
 import pandas as pd
@@ -7,10 +7,18 @@ import numpy as np
 defect_dict = get_defect_dict()
 
 dimensions_array = np.zeros((9,11))
-correlation_pearson_df = pd.DataFrame(dimensions_array)
-correlation_spearman_df = correlation_pearson_df.copy()
-std_df = correlation_pearson_df.copy()
-coefficient_of_variation_df = correlation_pearson_df.copy()
+template_df = pd.DataFrame(dimensions_array)
+
+correlation_pearson_before_vpr_df = template_df.copy()
+correlation_spearman_before_vpr_df = template_df.copy()
+std_before_vpr_df = template_df.copy()
+coefficient_of_variation_before_vpr_df = template_df.copy()
+
+correlation_pearson_after_vpr_df = template_df.copy()
+correlation_spearman_after_vpr_df = template_df.copy()
+std_after_vpr_df = template_df.copy()
+coefficient_of_variation_after_vpr_df = template_df.copy()
+
 service_abr_list = []
 
 for service_index, current_service in enumerate(services_metadata["operational"]):
@@ -36,31 +44,71 @@ for service_index, current_service in enumerate(services_metadata["operational"]
             if(row['Week'] in defect_dict["2023"]):
                 operational_metrics_data.loc[index, 'Danger'] = defect_dict["2023"][row['Week']]
 
-    #print the whole data table for ml model
-    operational_metrics_data.to_excel('..\\output\\operational_metrics\\operational_metrics_for_ml_' + service_abr + '.xlsx')
+    # save the whole data table for review purpose
+    operational_metrics_data.to_excel(operational_metrics_path + 'for_review_' + service_abr + '.xlsx')
 
-    verification_period = operational_metrics_data[ operational_metrics_data['Date'] >=  verification_start_date].index
-    operational_metrics_data.drop(verification_period , inplace=True)
+    columns_to_analyze_with_danger = columns_to_analyze.copy()
+    columns_to_analyze_with_danger.append("Danger")
+    # save the data table before validation date
+    before_vpr_df = operational_metrics_data.copy()
+    vpr_lines = before_vpr_df[before_vpr_df['Date'] >=  vpr_start_date].index
+    before_vpr_df = before_vpr_df[columns_to_analyze_with_danger]
+    before_vpr_df.drop(vpr_lines, inplace=True)
+    before_vpr_df.to_excel(operational_metrics_path + 'data_before_vpr_'+ service_abr +'.xlsx', float_format="%.3f")
 
-    print('\nNumber of items in the dataset for service {0}: {1}'.format(service_abr, operational_metrics_data.shape[0]))
+    # save the data table after validation date
+    vpr_df = operational_metrics_data.copy()
+    before_vpr_lines = vpr_df[vpr_df['Date'] < vpr_start_date].index
+    vpr_df = vpr_df[columns_to_analyze_with_danger]
+    vpr_df.drop(before_vpr_lines, inplace=True)
+    vpr_df.to_excel(operational_metrics_path + 'data_after_vpr_'+ service_abr +'.xlsx', float_format="%.3f")
+
+    # before vpr
+    print('\nNumber of items in the dataset for service before vpr {0}: {1}'.format(service_abr, before_vpr_df.shape[0]))
     for column in columns_to_analyze:
         metric_index = operational_metrics_names.index(column)
-        correlation_pearson_df.iloc[metric_index, service_index] = operational_metrics_data[column].corr(operational_metrics_data["Danger"], method='pearson')
-        correlation_spearman_df.iloc[metric_index, service_index] = operational_metrics_data[column].corr(operational_metrics_data["Danger"], method='spearman')
-        std_df.iloc[metric_index, service_index] = operational_metrics_data[column].std()
-        coefficient_of_variation_df.iloc[metric_index, service_index] = operational_metrics_data[column].std() / operational_metrics_data[column].mean()
+        correlation_pearson_before_vpr_df.iloc[metric_index, service_index] = before_vpr_df[column].corr(before_vpr_df["Danger"], method='pearson')
+        correlation_spearman_before_vpr_df.iloc[metric_index, service_index] = before_vpr_df[column].corr(before_vpr_df["Danger"], method='spearman')
+        std_before_vpr_df.iloc[metric_index, service_index] = before_vpr_df[column].std()
+        coefficient_of_variation_before_vpr_df.iloc[metric_index, service_index] = before_vpr_df[column].std() / before_vpr_df[column].mean()
 
-correlation_pearson_df.columns = service_abr_list
-correlation_spearman_df.columns = service_abr_list
-std_df.columns = service_abr_list
-coefficient_of_variation_df.columns = service_abr_list
+    # after vpr
+    print('\nNumber of items in the dataset for service after vpr {0}: {1}'.format(service_abr, vpr_df.shape[0]))
+    for column in columns_to_analyze:
+        metric_index = operational_metrics_names.index(column)
+        correlation_pearson_after_vpr_df.iloc[metric_index, service_index] = vpr_df[column].corr(vpr_df["Danger"], method='pearson')
+        correlation_spearman_after_vpr_df.iloc[metric_index, service_index] = vpr_df[column].corr(vpr_df["Danger"], method='spearman')
+        std_after_vpr_df.iloc[metric_index, service_index] = vpr_df[column].std()
+        coefficient_of_variation_after_vpr_df.iloc[metric_index, service_index] = vpr_df[column].std() / vpr_df[column].mean()
 
-correlation_pearson_df.to_excel('..\\output\\operational_metrics\\operational_metrics_corr_pearson.xlsx', float_format="%.3f")
-correlation_spearman_df.to_excel('..\\output\\operational_metrics\\operational_metrics_corr_spearman.xlsx', float_format="%.3f")
-std_df.to_excel('..\\output\\operational_metrics\\operational_metrics_std.xlsx', float_format="%.3f")
-coefficient_of_variation_df.to_excel('..\\output\\operational_metrics\\operational_metrics_cv.xlsx', float_format="%.3f")
+# before vpr
+correlation_pearson_before_vpr_df.columns = service_abr_list
+correlation_spearman_before_vpr_df.columns = service_abr_list
+std_before_vpr_df.columns = service_abr_list
+coefficient_of_variation_before_vpr_df.columns = service_abr_list
 
-print("Pearson correlation", correlation_pearson_df)
-print("Spearman correlation", correlation_spearman_df)
-print("Std", std_df)
-print("Coefficient of variation", coefficient_of_variation_df)
+correlation_pearson_before_vpr_df.to_excel(operational_metrics_path + 'before_vpr_corr_pearson.xlsx', float_format="%.3f")
+correlation_spearman_before_vpr_df.to_excel(operational_metrics_path + 'before_vpr_corr_spearman.xlsx', float_format="%.3f")
+std_before_vpr_df.to_excel(operational_metrics_path + 'before_vpr_std.xlsx', float_format="%.3f")
+coefficient_of_variation_before_vpr_df.to_excel(operational_metrics_path + 'before_vpr_cv.xlsx', float_format="%.3f")
+
+print("Pearson correlation before vpr", correlation_pearson_before_vpr_df)
+print("Spearman correlation before vpr", correlation_spearman_before_vpr_df)
+print("Std before vpr", std_before_vpr_df)
+print("Coefficient of variation before vpr", coefficient_of_variation_before_vpr_df)
+
+# after vpr
+correlation_pearson_after_vpr_df.columns = service_abr_list
+correlation_spearman_after_vpr_df.columns = service_abr_list
+std_after_vpr_df.columns = service_abr_list
+coefficient_of_variation_after_vpr_df.columns = service_abr_list
+
+correlation_pearson_after_vpr_df.to_excel(operational_metrics_path + 'after_vpr_corr_pearson.xlsx', float_format="%.3f")
+correlation_spearman_after_vpr_df.to_excel(operational_metrics_path + 'after_vpr_corr_spearman.xlsx', float_format="%.3f")
+std_after_vpr_df.to_excel(operational_metrics_path + 'after_vpr_std.xlsx', float_format="%.3f")
+coefficient_of_variation_after_vpr_df.to_excel(operational_metrics_path + 'after_vpr_cv.xlsx', float_format="%.3f")
+
+print("Pearson correlation after vpr", correlation_pearson_after_vpr_df)
+print("Spearman correlation after vpr", correlation_spearman_after_vpr_df)
+print("Std after vpr", std_after_vpr_df)
+print("Coefficient of variation after vpr", coefficient_of_variation_after_vpr_df)
