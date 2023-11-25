@@ -12,7 +12,7 @@ def get_defect_dict():
     #read
     bugs_sheet = pd.read_excel('..\\data\\Masters thesis final.xlsx', sheet_name='Bugs sorted', index_col=0)
     #remove rows not related to defects
-    real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()]
+    real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()].copy()
     #remove rows with unclear danger
     real_bugs["Danger_lvl"] = pd.to_numeric(real_bugs["Danger"], errors='coerce')
     real_bugs = real_bugs.loc[real_bugs['Danger_lvl'].notnull()]
@@ -50,7 +50,7 @@ def get_defect_for_sprint():
     #read
     bugs_sheet = pd.read_excel('..\\data\\Masters thesis final.xlsx', sheet_name='Bugs sorted', index_col=0)
     #remove rows not related to defects
-    real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()]
+    real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()].copy()
     #remove rows with unclear danger
     real_bugs["Danger_lvl"] = pd.to_numeric(real_bugs["Danger"], errors='coerce')
     real_bugs = real_bugs.loc[real_bugs['Danger_lvl'].notnull()]
@@ -78,7 +78,7 @@ def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service'):
     #read
     bugs_sheet = pd.read_excel('..\\data\\Masters thesis final.xlsx', sheet_name='Bugs sorted', index_col=0)
     #remove rows not related to defects
-    real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()]
+    real_bugs = bugs_sheet.loc[bugs_sheet['Danger'].notnull()].copy()
     #remove rows with unclear danger
     real_bugs["Danger_lvl"] = pd.to_numeric(real_bugs["Danger"], errors='coerce')
     real_bugs = real_bugs.loc[real_bugs['Danger_lvl'].notnull()]
@@ -105,6 +105,5 @@ def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service'):
                 danger_lvls_2023_dict[row['Week']] = danger_lvls_2023_dict[row['Week']] + row['Danger_lvl']
 
     result = {"2022": danger_lvls_2022_dict, "2023": danger_lvls_2023_dict}
-    print(result)
     
     return result
