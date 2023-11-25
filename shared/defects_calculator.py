@@ -72,7 +72,7 @@ def get_defect_for_sprint():
 
     return bugs_per_sprint
 
-def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service'):
+def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service', include_pipeline_defects = False):
     print("Calculating total number of bugs with weight for every week per " + service_name + " service")
 
     #read
@@ -83,7 +83,11 @@ def get_defect_dict_per_service(service_name: str = 'rt-orchestration-service'):
     real_bugs["Danger_lvl"] = pd.to_numeric(real_bugs["Danger"], errors='coerce')
     real_bugs = real_bugs.loc[real_bugs['Danger_lvl'].notnull()]
     
-    real_bugs = real_bugs.loc[real_bugs['Related service (at least fix)'].str.contains(service_name)]
+    if include_pipeline_defects:
+        real_bugs = real_bugs.loc[(real_bugs['Related service (at least fix)'].str.contains(service_name)) |
+            (real_bugs['Related service (at least fix)'].str.contains('all'))]
+    else:
+        real_bugs = real_bugs.loc[real_bugs['Related service (at least fix)'].str.contains(service_name)]
 
     real_bugs["Week"] = real_bugs["Found"].dt.isocalendar().week
     real_bugs["Year"] = real_bugs["Found"].dt.isocalendar().year
